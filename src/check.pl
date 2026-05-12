@@ -17,7 +17,7 @@ lihatKartu :-
 
 lihatKartu :-
     giliran(PemainAktif),
-    kartu_pemain(PemainAktif, ListKartu),
+    playerCard(PemainAktif, ListKartu),
     write('Berikut kartu yang anda miliki:'), nl,
     tampilDaftarKartu(ListKartu, 1).
 
@@ -33,7 +33,7 @@ cekInfo :-
     write('Game belum dimulai.'), nl.
 
 cekInfo :-
-    discard_top(Top),
+    activeCard(Top),
     format('Kartu discard top: ~w.~n~n', [Top]),
     daftarPemain(Urutan),
     write('Urutan pemain: '),
@@ -47,7 +47,7 @@ tampilUrutanInfo([X|T]) :- write(X), write(' - '), tampilUrutanInfo(T).
 
 tampilDetailPemain([], _).
 tampilDetailPemain([Pemain|T], Index) :-
-    kartu_pemain(Pemain, List),
+    playerCard(Pemain, List),
     length(List, Jumlah),
     format('Nama pemain ~d: ~w~n', [Index, Pemain]),
     format('Jumlah kartu : ~d~n~n', [Jumlah]),

@@ -1,71 +1,149 @@
-kartu(angka, kuning, 0).
-kartu(angka, kuning, 1).
-kartu(angka, kuning, 2).
-kartu(angka, kuning, 3).
-kartu(angka, kuning, 4).
-kartu(angka, kuning, 5).
-kartu(angka, kuning, 6).
-kartu(angka, kuning, 7).
-kartu(angka, kuning, 8).
-kartu(angka, kuning, 9).
+kartu(kuning, 0).
+kartu(kuning, 1).
+kartu(kuning, 2).
+kartu(kuning, 3).
+kartu(kuning, 4).
+kartu(kuning, 5).
+kartu(kuning, 6).
+kartu(kuning, 7).
+kartu(kuning, 8).
+kartu(kuning, 9).
 
-kartu(angka, merah, 0).
-kartu(angka, merah, 1).
-kartu(angka, merah, 2).
-kartu(angka, merah, 3).
-kartu(angka, merah, 4).
-kartu(angka, merah, 5).
-kartu(angka, merah, 6).
-kartu(angka, merah, 7).
-kartu(angka, merah, 8).
-kartu(angka, merah, 9).
+kartu(merah, 0).
+kartu(merah, 1).
+kartu(merah, 2).
+kartu(merah, 3).
+kartu(merah, 4).
+kartu(merah, 5).
+kartu(merah, 6).
+kartu(merah, 7).
+kartu(merah, 8).
+kartu(merah, 9).
 
-kartu(angka, biru, 0).
-kartu(angka, biru, 1).
-kartu(angka, biru, 2).
-kartu(angka, biru, 3).
-kartu(angka, biru, 4).
-kartu(angka, biru, 5).
-kartu(angka, biru, 6).
-kartu(angka, biru, 7).
-kartu(angka, biru, 8).
-kartu(angka, biru, 9).
+kartu(biru, 0).
+kartu(biru, 1).
+kartu(biru, 2).
+kartu(biru, 3).
+kartu(biru, 4).
+kartu(biru, 5).
+kartu(biru, 6).
+kartu(biru, 7).
+kartu(biru, 8).
+kartu(biru, 9).
 
-kartu(angka, hijau, 0).
-kartu(angka, hijau, 1).
-kartu(angka, hijau, 2).
-kartu(angka, hijau, 3).
-kartu(angka, hijau, 4).
-kartu(angka, hijau, 5).
-kartu(angka, hijau, 6).
-kartu(angka, hijau, 7).
-kartu(angka, hijau, 8).
-kartu(angka, hijau, 9).
+kartu(hijau, 0).
+kartu(hijau, 1).
+kartu(hijau, 2).
+kartu(hijau, 3).
+kartu(hijau, 4).
+kartu(hijau, 5).
+kartu(hijau, 6).
+kartu(hijau, 7).
+kartu(hijau, 8).
+kartu(hijau, 9).
 
-kartu(reverse, kuning, reverse).
-kartu(reverse, merah, reverse).
-kartu(reverse, biru, reverse).
-kartu(reverse, hijau, reverse).
+kartu(kuning, reverse).
+kartu(merah, reverse).
+kartu(biru, reverse).
+kartu(hijau, reverse).
 
-kartu(skip, kuning, skip).
-kartu(skip, merah, skip).
-kartu(skip, biru, skip).
-kartu(skip, hijau, skip).
+kartu(kuning, skip).
+kartu(merah, skip).
+kartu(biru, skip).
+kartu(hijau, skip).
 
-kartu(drawTwo, kuning, drawTwo).
-kartu(drawTwo, merah, drawTwo).
-kartu(drawTwo, biru, drawTwo).
-kartu(drawTwo, hijau, drawTwo).
+kartu(kuning, drawTwo).
+kartu(merah, drawTwo).
+kartu(biru, drawTwo).
+kartu(hijau, drawTwo).
 
-kartu(wild, hitam, wild).
-kartu(wild, hitam, wild).
-kartu(wild, hitam, wild).
-kartu(wild, hitam, wild).
+kartu(hitam, wild).
+kartu(hitam, wild).
+kartu(hitam, wild).
+kartu(hitam, wild).
 
-kartu(wildFour, hitam, wildFour).
-kartu(wildFour, hitam, wildFour).
-kartu(wildFour, hitam, wildFour).
-kartu(wildFour, hitam, wildFour).
+kartu(hitam, wildFour).
+kartu(hitam, wildFour).
+kartu(hitam, wildFour).
+kartu(hitam, wildFour).
 
+:- dynamic(activeCard/1).
+:- dynamic(deck/1).
+:- dynamic(playerCard/2).
+:- use_module(library(random)).
+:- use_module(library(lists)).
 
+bagiKartu([], Deck, Deck).
+bagiKartu([Pemain | SisaPemain], DeckAwal, DeckSisa) :-
+    ambilNKartu(7, DeckAwal, TanganPemain, DeckSetelahAmbil),
+    assertz(playerCard(Pemain, TanganPemain)),
+    bagiKartu(SisaPemain, DeckSetelahAmbil, DeckSisa).
 
+initKartu :-
+    retractall(playerCard(_, _)),
+    retractall(deck(_)),
+    retractall(activeCard(_)),
+    findall(kartu(Warna, Jenis), kartu(Warna, Jenis), SemuaKartu),
+    random_permutation(SemuaKartu, DeckKocok),
+    daftarPemain(DaftarPemain),
+    bagiKartu(DaftarPemain, DeckKocok, SisaDeck),
+    SisaDeck = [KartuAwal | SisaDeckAkhir],
+    assertz(activeCard(KartuAwal)),
+    assertz(deck(SisaDeckAkhir)).
+
+ambilNKartu(0, Deck, [], Deck).
+ambilNKartu(N, [Kartu | SisaDeck], [Kartu | SisaKartu], DeckAkhir) :-
+    N > 0,
+    N1 is N - 1,
+    ambilNKartu(N1, SisaDeck, SisaKartu, DeckAkhir).
+
+ambilKartuN(N, Daftar, Elemen) :-
+    integer(N),
+    N >= 1,
+    nth1(N, Daftar, Elemen).
+
+deleteKartu(N, Daftar, DaftarBaru) :-
+    integer(N),
+    N >= 1,
+    nth1(N, Daftar, _, DaftarBaru).
+
+mainkanKartu(NomorUrutKartuDiTangan) :-  
+    giliran(Pemain),
+    playerCard(Pemain, Tangan),
+    activeCard(KartuAktif),
+    ( ambilKartuN(NomorUrutKartuDiTangan, Tangan, KartuPilihan) ->
+        KartuPilihan = kartu(WarnaPilihan, JenisPilihan),
+        format('~w memainkan kartu: ~w-~w.~n', [Pemain, WarnaPilihan, JenisPilihan]),
+        deleteKartu(NomorUrutKartuDiTangan, Tangan, TanganBaru),
+        retract(playerCard(Pemain, Tangan)),
+        assertz(playerCard(Pemain, TanganBaru)),
+        retract(activeCard(KartuAktif)),
+        assertz(activeCard(KartuPilihan)),
+        nextPlayer(PemainBerikutnya),
+        retract(giliran(Pemain)),
+        assertz(giliran(PemainBerikutnya)),
+        format('Giliran ~w.~n', [PemainBerikutnya])   
+    ; 
+      write('Nomor kartu salah.'), nl
+    ).
+
+ambilKartu :-
+    giliran(Pemain),
+    playerCard(Pemain, TanganSekarang),
+    deck(DeckSekarang),
+    ( DeckSekarang = [KartuBaru|DeckBaru] ->
+        KartuBaru = kartu(WarnaBaru, JenisBaru),
+        format('~w mendapatkan kartu: ~w-~w.~n', [Pemain, WarnaBaru, JenisBaru]),
+        append(TanganSekarang, [KartuBaru], TanganBaru),
+        retract(playerCard(Pemain, TanganSekarang)),
+        assertz(playerCard(Pemain, TanganBaru)),
+        retract(deck(DeckSekarang)),
+        assertz(deck(DeckBaru)),
+        nextPlayer(PemainBerikutnya),
+        retract(giliran(Pemain)),
+        assertz(giliran(PemainBerikutnya)),
+        format('Giliran ~w.~n', [PemainBerikutnya]),
+        write('yes'), nl
+    ;
+        write('Deck kosong!'), nl
+    ).

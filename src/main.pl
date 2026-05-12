@@ -1,1 +1,2 @@
-% main gatau isi apaan.
+:-include('player.pl').
+:-include('setup.pl').

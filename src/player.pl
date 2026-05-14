@@ -31,10 +31,19 @@ ambilSemuaNama(N, NamaSblmnya, [Nama | Sisa]) :-
     N1 is N - 1,
     ambilSemuaNama(N1, [Nama | NamaSblmnya], Sisa).
 
+huruf_awal_besar(Nama) :-
+    atom(Nama),
+    atom_chars(Nama, [C|_]),
+    char_type(C, upper).
+
 cekNama(Nama, NamaSblmnya, Nama) :-
+    huruf_awal_besar(Nama),
     \+ member(Nama, NamaSblmnya), !.
 
-cekNama(_, NamaSblmnya, NamaValid) :-
-    write('Nama sdh digunakan. Masukkan nama lain: '),
+cekNama(Nama, NamaSblmnya, NamaValid) :-
+    ( \+ huruf_awal_besar(Nama) ->
+        write('Nama harus diawali huruf besar. Masukkan nama lain: ')
+    ; write('Nama sdh digunakan. Masukkan nama lain: ')
+    ),
     read(NamaBaru),
     cekNama(NamaBaru, NamaSblmnya, NamaValid).

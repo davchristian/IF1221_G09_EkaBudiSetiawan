@@ -2,6 +2,8 @@
 :- dynamic(giliran/1).
 :- dynamic(gameMulai/0).
 
+:- use_module(library(random)).
+
 startGame :-
     gameMulai,
     write('Game sudah dimulai.'), nl, !.

@@ -19,10 +19,10 @@ startGame :-
     acakList(DaftarNama, UrutanAcak),
 
     asserta(daftarPemain(UrutanAcak)),
-
+    
     UrutanAcak = [PemainPertama | _],
     asserta(giliran(PemainPertama)),
-
+    initKartu,
     asserta(gameMulai),
 
     nl,
@@ -38,6 +38,9 @@ resetGame :-
     retractall(daftarPemain(_)),
     retractall(giliran(_)),
     retractall(gameMulai).
+    retractall(playerCard(_, _)),
+    retractall(deck(_)),
+    retractall(activeCard(_)).
 
 tampilUrutan([X]) :-
     write(X).

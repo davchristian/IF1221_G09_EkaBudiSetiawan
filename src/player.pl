@@ -33,17 +33,21 @@ ambilSemuaNama(N, NamaSblmnya, [Nama | Sisa]) :-
 
 huruf_awal_besar(Nama) :-
     atom(Nama),
-    atom_chars(Nama, [C|_]),
-    char_type(C, upper).
+    atom_codes(Nama, [C|_]),
+    C >= 65,
+    C =< 90.
 
 cekNama(Nama, NamaSblmnya, Nama) :-
+    atom(Nama),
     huruf_awal_besar(Nama),
     \+ member(Nama, NamaSblmnya), !.
 
 cekNama(Nama, NamaSblmnya, NamaValid) :-
-    ( \+ huruf_awal_besar(Nama) ->
-        write('Nama harus diawali huruf besar. Masukkan nama lain: ')
-    ; write('Nama sdh digunakan. Masukkan nama lain: ')
+    ( \+ atom(Nama) ->
+        write('Nama harus diapit petik, contoh: ''RipanGanteng''. Masukkan nama lain: ')
+    ; \+ huruf_awal_besar(Nama) ->
+        write('Nama harus diawali huruf besar, contoh: ''RipanGanteng''. Masukkan nama lain: ')
+    ; write('Nama sdh digunakan. Masukkan nama lain (diapit petik): ')
     ),
     read(NamaBaru),
     cekNama(NamaBaru, NamaSblmnya, NamaValid).

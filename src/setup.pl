@@ -16,7 +16,7 @@ startGame :-
 
     ambilSemuaNama(Jumlah, [], DaftarNama),
 
-    UrutanAcak = DaftarNama,
+    acakList(DaftarNama, UrutanAcak),
 
     asserta(daftarPemain(UrutanAcak)),
 
@@ -46,3 +46,18 @@ tampilUrutan([X | Sisa]) :-
     write(X),
     write(' - '),
     tampilUrutan(Sisa).
+
+% gnu prolog kaga ada random_permutation co adanya di swi prolog, jadi bikin sendiri pake random dan keysrt
+acakList(L, R) :-
+    pasangKey(L, KL),
+    keysort(KL, KLS),
+    ambilVal(KLS, R).
+
+pasangKey([], []).
+pasangKey([H|T], [K-H|R]) :-
+    random(K),
+    pasangKey(T, R).
+
+ambilVal([], []).
+ambilVal([_-V|T], [V|R]) :-
+    ambilVal(T, R).

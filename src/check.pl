@@ -33,6 +33,11 @@ cekInfo :-
     write('Game belum dimulai.'), nl.
 
 cekInfo :-
+    gameMulai,
+    \+ activeCard(_), !,
+    write('Kartu belum diinisialisasi. Jalankan startGame ulang.'), nl.
+
+cekInfo :-
     activeCard(Top),
     format('Kartu discard top: ~w.~n~n', [Top]),
     daftarPemain(Urutan),

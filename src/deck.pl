@@ -73,6 +73,26 @@ kartu(hitam, wildFour).
 :- use_module(library(random)).
 :- use_module(library(lists)).
 
+acakList(L, R) :-
+    pasangKey(L, KL),
+    keysort(KL, KLS),
+    ambilVal(KLS, R).
+
+pasangKey([], []).
+pasangKey([H|T], [K-H|R]) :-
+    random(K),
+    pasangKey(T, R).
+
+ambilVal([], []).
+ambilVal([_-V|T], [V|R]) :-
+    ambilVal(T, R).
+
+ambilAngka([K|S], K, S) :-
+    K = kartu(_, J),
+    integer(J), !.
+ambilAngka([_|S], K, D) :-
+    ambilAngka(S, K, D).
+
 bagiKartu([], Deck, Deck).
 bagiKartu([Pemain | SisaPemain], DeckAwal, DeckSisa) :-
     ambilNKartu(7, DeckAwal, TanganPemain, DeckSetelahAmbil),
@@ -84,10 +104,10 @@ initKartu :-
     retractall(deck(_)),
     retractall(activeCard(_)),
     findall(kartu(Warna, Jenis), kartu(Warna, Jenis), SemuaKartu),
-    random_permutation(SemuaKartu, DeckKocok),
+    acakList(SemuaKartu, DeckKocok),
     daftarPemain(DaftarPemain),
     bagiKartu(DaftarPemain, DeckKocok, SisaDeck),
-    SisaDeck = [KartuAwal | SisaDeckAkhir],
+    ambilAngka(SisaDeck, KartuAwal, SisaDeckAkhir),
     assertz(activeCard(KartuAwal)),
     assertz(deck(SisaDeckAkhir)).
 

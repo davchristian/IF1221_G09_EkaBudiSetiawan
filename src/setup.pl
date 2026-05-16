@@ -37,10 +37,12 @@ startGame :-
 resetGame :-
     retractall(daftarPemain(_)),
     retractall(giliran(_)),
-    retractall(gameMulai).
+    retractall(gameMulai),
     retractall(playerCard(_, _)),
     retractall(deck(_)),
-    retractall(activeCard(_)).
+    retractall(activeCard(_)),
+    retractall(kartu_pemain(_, _)),
+    retractall(discard_top(_)).
 
 tampilUrutan([X]) :-
     write(X).

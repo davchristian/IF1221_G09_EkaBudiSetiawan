@@ -111,6 +111,10 @@ initKartu :-
     assertz(activeCard(KartuAwal)),
     assertz(deck(SisaDeckAkhir)).
 
+get_random_card(kartu(Tipe, Warna, Nilai)) :-
+    findall(kartu(W, A), kartu(W, A), SemuaKartu),
+    random_member(kartu(Warna, Angka), SemuaKartu).
+
 ambilNKartu(0, Deck, [], Deck).
 ambilNKartu(N, [Kartu | SisaDeck], [Kartu | SisaKartu], DeckAkhir) :-
     N > 0,
@@ -126,6 +130,17 @@ deleteKartu(N, Daftar, DaftarBaru) :-
     integer(N),
     N >= 1,
     nth1(N, Daftar, _, DaftarBaru).
+
+mainkanKartu(_) :-
+    \+ gameMulai, !,
+    write('Game belum dimulai! Gunakan startGame.').
+
+mainkanKartu(NomorUrutKartuDiTangan) :-
+    giliran(Pemain),
+    playerCard(Pemain, Tangan),
+    length(Tangan, Len),
+    (NomorUrut < 1 ; NomorUrut > Len), !,
+    write('Nomor urut kartu tidak valid! Coba lihatKartu lagi.').
 
 mainkanKartu(NomorUrutKartuDiTangan) :-  
     giliran(Pemain),
@@ -163,7 +178,6 @@ ambilKartu :-
         retract(giliran(Pemain)),
         assertz(giliran(PemainBerikutnya)),
         format('Giliran ~w.~n', [PemainBerikutnya]),
-        write('yes'), nl
     ;
         write('Deck kosong!'), nl
     ).

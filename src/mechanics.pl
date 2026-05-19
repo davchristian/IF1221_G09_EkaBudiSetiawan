@@ -147,11 +147,24 @@ tarik_kartu_penalti(N, Pemain) :-
         write('[Sistem] Deck habis! Mengisi deck dari discard pile.'),
         shuffleDiscardPileToDeck,
         tarik_kartu_penalti(N, Pemain),
-        nl.
+        nl
     ).
 
+nextPlayer(PemainSaat, PemainBerikutnya) :-
+    daftarPemain(Urutan),
+    arahPermainan(Arah),
+    ( Arah == clockwise ->
+        ( append(_, [PemainSaat, PemainBerikutnya | _], Urutan) -> true
+        ; last(Urutan, PemainSaat), Urutan = [PemainBerikutnya | _]
+        )
+    ;
+        ( append(_, [PemainBerikutnya, PemainSaat | _], Urutan) -> true
+        ; Urutan = [PemainSaat | _], last(Urutan, PemainBerikutnya)
+        )
+    ).
+    
 pindahGiliran(Pemain) :-
-    nextPlayer(PemainBerikutnya), 
+    nextPlayer(Pemain, PemainBerikutnya), 
     retract(giliran(Pemain)),
     assertz(giliran(PemainBerikutnya)),
     format('Giliran ~w.~n', [PemainBerikutnya]).

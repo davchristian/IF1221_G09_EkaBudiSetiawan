@@ -136,7 +136,7 @@ tarik_kartu_penalti(N, Pemain) :-
         N1 is N - 1,
         tarik_kartu_penalti(N1, Pemain)
     ;
-        write('[Sistem] Deck habis! Tidak bisa menarik kartu lagi.'),
+        write('[Sistem] Deck habis! Mengisi deck dari discard pile.'),
         shuffleDiscardPileToDeck,
         tarik_kartu_penalti(N, Pemain),
         nl.

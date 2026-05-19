@@ -178,3 +178,5 @@ shuffleDiscardPileToDeck :-
     retract(discardPile(_)),
     assertz(discardPile([TopCard])),
     length(DeckBaru, Jumlah).
+
+    

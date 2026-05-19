@@ -111,7 +111,7 @@ initKartu :-
     assertz(activeCard(KartuAwal)),
     assertz(deck(SisaDeckAkhir)).
 
-get_random_card(kartu(Tipe, Warna, Nilai)) :-
+get_random_card(kartu(Warna, Angka)) :-
     findall(kartu(W, A), kartu(W, A), SemuaKartu),
     random_member(kartu(Warna, Angka), SemuaKartu).
 

@@ -172,7 +172,7 @@ ambilKartu :-
 kartuAktif :-
     activeCard(CurCard),
     CurCard = kartu(WarnaAktif, AngkaAktif),
-    format('Kartu aktif : ~w ~w.', [AngkaAktif, WarnaAktif]).
+    format('Kartu aktif : ~w ~w.', [AngkaAktif, WarnaAktif]),nl.
 
 
     

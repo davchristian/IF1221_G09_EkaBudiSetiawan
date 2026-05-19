@@ -9,7 +9,7 @@ lihatCommand :-
     write('Aksi pendukung yang tersedia:'), nl,
     write('1. lihatCommand'), nl,
     write('2. lihatKartu'), nl,
-    write('3. cekInfo'), nl.
+    write('3. cekInfo'), nl,
     write('4. tangkap(NamaPemain)'), nl.
 
 /* lihatKartu */

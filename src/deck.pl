@@ -72,6 +72,7 @@ kartu(hitam, wildFour).
 :- dynamic(playerCard/2).
 :- dynamic(discardPile/1).
 :- dynamic(arahPermainan/1).
+:- dynamic(warnaAktif/1).
 :- use_module(library(random)).
 :- use_module(library(lists)).
 
@@ -142,6 +143,7 @@ get_random_card(kartu(Warna, Angka)) :-
 kartuAktif :-
     activeCard(CurCard),
     CurCard = kartu(WarnaAktif, AngkaAktif),
+    warnaAktif(WarnaAktif),
     format('Kartu aktif : ~w ~w.', [AngkaAktif, WarnaAktif]), nl.
 
 ambilNKartu(0, Deck, [], Deck).
@@ -176,3 +178,5 @@ shuffleDiscardPileToDeck :-
     retract(discardPile(_)),
     assertz(discardPile([TopCard])),
     length(DeckBaru, Jumlah).
+
+    

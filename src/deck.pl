@@ -135,10 +135,14 @@ initKartu :-
     assertz(warna_aktif(WarnaAwal)),
     format('Kartu awal: ~w~n', [KartuAwal]).
 
-
 get_random_card(kartu(Warna, Angka)) :-
     findall(kartu(W, A), kartu(W, A), SemuaKartu),
     random_member(kartu(Warna, Angka), SemuaKartu).
+
+kartuAktif :-
+    activeCard(CurCard),
+    CurCard = kartu(WarnaAktif, AngkaAktif),
+    format('Kartu aktif : ~w ~w.', [AngkaAktif, WarnaAktif]), nl.
 
 ambilNKartu(0, Deck, [], Deck).
 ambilNKartu(N, [Kartu | SisaDeck], [Kartu | SisaKartu], DeckAkhir) :-

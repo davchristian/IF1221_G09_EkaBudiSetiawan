@@ -1,4 +1,5 @@
 :- dynamic(daftarPemain/1).
+:- dynamic(status_UNI/1).
 :- dynamic(giliran/1).
 :- dynamic(gameMulai/0).
 
@@ -42,7 +43,11 @@ resetGame :-
     retractall(deck(_)),
     retractall(activeCard(_)),
     retractall(kartu_pemain(_, _)),
-    retractall(discard_top(_)).
+    retractall(discard_top(_)),
+    retractall(status_UNI(_)),
+    retractall(warna_aktif(_)),
+    retractall(menunggu_respons_draw_two),
+    retractall(menunggu_respons_draw_four(_, _)).
 
 tampilUrutan([X]) :-
     write(X).

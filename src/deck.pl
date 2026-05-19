@@ -70,6 +70,8 @@ kartu(hitam, wildFour).
 :- dynamic(activeCard/1).
 :- dynamic(deck/1).
 :- dynamic(playerCard/2).
+:- dynamic(discardPile/1).
+:- dynamic(arahPermainan/1).
 :- use_module(library(random)).
 :- use_module(library(lists)).
 
@@ -99,17 +101,40 @@ bagiKartu([Pemain | SisaPemain], DeckAwal, DeckSisa) :-
     assertz(playerCard(Pemain, TanganPemain)),
     bagiKartu(SisaPemain, DeckSetelahAmbil, DeckSisa).
 
+isKartuAngka(kartu(_, Jenis)) :-
+    integer(Jenis),
+    Jenis >= 0,
+    Jenis =< 9.
+
+cariKartuAngka([Kartu|Sisa], Kartu, Sisa) :-
+    isKartuAngka(Kartu),
+    !.
+cariKartuAngka([Kartu|Sisa], KartuAngka, [Kartu|SisaBaru]) :-
+    cariKartuAngka(Sisa, KartuAngka, SisaBaru).
+
 initKartu :-
     retractall(playerCard(_, _)),
     retractall(deck(_)),
     retractall(activeCard(_)),
+    retractall(giliran(_)),
+    retractall(arahPermainan(_)),
+    retractall(warna_aktif(_)),
+    retractall(discardPile(_)),
     findall(kartu(Warna, Jenis), kartu(Warna, Jenis), SemuaKartu),
-    acakList(SemuaKartu, DeckKocok),
+    random_permutation(SemuaKartu, DeckKocok),
     daftarPemain(DaftarPemain),
     bagiKartu(DaftarPemain, DeckKocok, SisaDeck),
-    ambilAngka(SisaDeck, KartuAwal, SisaDeckAkhir),
+    cariKartuAngka(SisaDeck, KartuAwal, SisaDeckAkhir),
     assertz(activeCard(KartuAwal)),
-    assertz(deck(SisaDeckAkhir)).
+    assertz(discardPile([KartuAwal])),
+    assertz(deck(SisaDeckAkhir)),
+    DaftarPemain = [PemainPertama | _],
+    assertz(giliran(PemainPertama)),
+    assertz(arahPermainan(clockwise)),
+    KartuAwal = kartu(WarnaAwal, _),
+    assertz(warna_aktif(WarnaAwal)),
+    format('Kartu awal: ~w~n', [KartuAwal]).
+
 
 get_random_card(kartu(Warna, Angka)) :-
     findall(kartu(W, A), kartu(W, A), SemuaKartu),
@@ -126,67 +151,24 @@ ambilKartuN(N, Daftar, Elemen) :-
     N >= 1,
     nth1(N, Daftar, Elemen).
 
-deleteKartu(N, Daftar, DaftarBaru) :-
-    integer(N),
-    N >= 1,
-    nth1(N, Daftar, _, DaftarBaru).
+deleteKartu(1, [_|T], T) :- !.
+deleteKartu(N, [H|T], [H|TBaru]) :-
+    N > 1,
+    N1 is N - 1,
+    deleteKartu(N1, T, TBaru).
 
-mainkanKartu(_) :-
-    \+ gameMulai, !,
-    write('Game belum dimulai! Gunakan startGame.').
+tambahKeDiscardPile(Kartu) :-
+    discardPile(Pile),
+    retract(discardPile(Pile)),
+    assertz(discardPile([Kartu|Pile])).
 
-mainkanKartu(NomorUrutKartuDiTangan) :-
-    giliran(Pemain),
-    playerCard(Pemain, Tangan),
-    length(Tangan, Len),
-    (NomorUrut < 1 ; NomorUrut > Len), !,
-    write('Nomor urut kartu tidak valid! Coba lihatKartu lagi.').
-
-mainkanKartu(NomorUrutKartuDiTangan) :-  
-    giliran(Pemain),
-    playerCard(Pemain, Tangan),
-    activeCard(KartuAktif),
-    ( ambilKartuN(NomorUrutKartuDiTangan, Tangan, KartuPilihan) ->
-        KartuPilihan = kartu(WarnaPilihan, JenisPilihan),
-        format('~w memainkan kartu: ~w-~w.~n', [Pemain, WarnaPilihan, JenisPilihan]),
-        deleteKartu(NomorUrutKartuDiTangan, Tangan, TanganBaru),
-        retract(playerCard(Pemain, Tangan)),
-        assertz(playerCard(Pemain, TanganBaru)),
-        retract(activeCard(KartuAktif)),
-        assertz(activeCard(KartuPilihan)),
-        nextPlayer(PemainBerikutnya),
-        retract(giliran(Pemain)),
-        assertz(giliran(PemainBerikutnya)),
-        format('Giliran ~w.~n', [PemainBerikutnya])   
-    ; 
-      write('Nomor kartu salah.'), nl
-    ).
-
-ambilKartu :-
-    giliran(Pemain),
-    playerCard(Pemain, TanganSekarang),
+shuffleDiscardPileToDeck :-
+    discardPile([TopCard|SisaPile]),
     deck(DeckSekarang),
-    ( DeckSekarang = [KartuBaru|DeckBaru] ->
-        KartuBaru = kartu(WarnaBaru, JenisBaru),
-        format('~w mendapatkan kartu: ~w-~w.~n', [Pemain, WarnaBaru, JenisBaru]),
-        append(TanganSekarang, [KartuBaru], TanganBaru),
-        retract(playerCard(Pemain, TanganSekarang)),
-        assertz(playerCard(Pemain, TanganBaru)),
-        retract(deck(DeckSekarang)),
-        assertz(deck(DeckBaru)),
-        nextPlayer(PemainBerikutnya),
-        retract(giliran(Pemain)),
-        assertz(giliran(PemainBerikutnya)),
-        format('Giliran ~w.~n', [PemainBerikutnya]),
-    ;
-        write('Deck kosong!'), nl
-    ).
-
-
-kartuAktif :-
-    activeCard(CurCard),
-    CurCard = kartu(WarnaAktif, AngkaAktif),
-    format('Kartu aktif : ~w ~w.', [AngkaAktif, WarnaAktif]),nl.
-
-
-    
+    acakList(SisaPile, PileKocok),
+    append(DeckSekarang, PileKocok, DeckBaru),
+    retract(deck(DeckSekarang)),
+    assertz(deck(DeckBaru)),
+    retract(discardPile(_)),
+    assertz(discardPile([TopCard])),
+    length(DeckBaru, Jumlah).

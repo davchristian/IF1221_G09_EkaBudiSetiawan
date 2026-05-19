@@ -147,11 +147,24 @@ tarik_kartu_penalti(N, Pemain) :-
         write('[Sistem] Deck habis! Mengisi deck dari discard pile.'),
         shuffleDiscardPileToDeck,
         tarik_kartu_penalti(N, Pemain),
-        nl.
+        nl
     ).
 
+nextPlayer(PemainSaat, PemainBerikutnya) :-
+    daftarPemain(Urutan),
+    arahPermainan(Arah),
+    ( Arah == clockwise ->
+        ( append(_, [PemainSaat, PemainBerikutnya | _], Urutan) -> true
+        ; last(Urutan, PemainSaat), Urutan = [PemainBerikutnya | _]
+        )
+    ;
+        ( append(_, [PemainBerikutnya, PemainSaat | _], Urutan) -> true
+        ; Urutan = [PemainSaat | _], last(Urutan, PemainBerikutnya)
+        )
+    ).
+    
 pindahGiliran(Pemain) :-
-    nextPlayer(PemainBerikutnya), 
+    nextPlayer(Pemain, PemainBerikutnya), 
     retract(giliran(Pemain)),
     assertz(giliran(PemainBerikutnya)),
     format('Giliran ~w.~n', [PemainBerikutnya]).
@@ -173,34 +186,33 @@ pindahGiliranSkip(Pemain) :-
     write('Pemain berikutnya kehilangan giliran.'), nl,
     format('Giliran ~w.~n', [P2]).
 
-uni(NomorUrut) :-
+uni(Nomor) :-
+    \+ gameMulai, !, write('Game belum dimulai!'), nl.
+
+uni(Nomor) :-
     giliran(Pemain),
-    playerCard(Pemain, Tangan),
-    length(Tangan, L),
+    playerCard(Pemain, Hand),
+    length(Hand, L),
     
     ( L =:= 2 ->
-        ambilKartuN(NomorUrut, Tangan, KartuPilihan),
-        activeCard(KartuAktif),
-        KartuPilihan = kartu(WarnaPilihan, JenisPilihan),
-        KartuAktif = kartu(WarnaAktif, JenisAktif),
-        
-        ( (WarnaPilihan == WarnaAktif ; JenisPilihan == JenisAktif ; WarnaPilihan == hitam) ->
-            format('~w memainkan kartu: ~w-~w.~n', [Pemain, WarnaPilihan, JenisPilihan]),
-            format('~w menyerukan UNI!~n', [Pemain]),
+        ( ambilKartuN(Nomor, Hand, KartuPilihan) ->
+            activeCard(KartuTop),
+            (warna_aktif(WA) -> WarnaAktif = WA ; KartuTop = kartu(WarnaAktif, _)),
             
-            deleteKartu(NomorUrut, Tangan, TanganBaru),
-            retract(playerCard(Pemain, Tangan)),
-            assertz(playerCard(Pemain, TanganBaru)),
-            retract(activeCard(KartuAktif)),
-            assertz(activeCard(KartuPilihan)),
+            format('~w mencoba menyerukan UNI!~n', [Pemain]),
             
-            assertz(status_UNI(Pemain)),
-            pindahGiliran(Pemain)
-            
-        ; 
-            format('Kartu tidak valid! ~w mendapatkan 1 kartu penalti.~n', [Pemain]),
-            tarik_kartu_penalti(1, Pemain),
-            pindahGiliran(Pemain)
+            ( proses_kartu(Pemain, Nomor, KartuPilihan, KartuTop, WarnaAktif, Hand) ->
+                assertz(status_UNI(Pemain)),
+                write('Seruan UNI berhasil divalidasi!'), nl,
+                
+                playerCard(Pemain, HandBaru),
+                ( HandBaru == [] -> endGame ; true )
+            ; 
+                format('Kartu tidak valid! ~w mendapatkan 1 kartu penalti.~n', [Pemain]),
+                tarik_kartu_penalti(1, Pemain),
+                pindahGiliran(Pemain)
+            )
+        ; write('Nomor kartu salah.'), nl
         )
     ; 
         format('Perintah tidak valid! ~w tidak memenuhi syarat UNI.~n', [Pemain]),
@@ -208,6 +220,9 @@ uni(NomorUrut) :-
         tarik_kartu_penalti(1, Pemain),
         pindahGiliran(Pemain)
     ).
+
+tangkap(_) :-
+    \+ gameMulai, !, write('Game belum dimulai!'), nl.
 
 tangkap(Target) :-
     giliran(PemainAktif),
@@ -221,11 +236,14 @@ tangkap(Target) :-
             format('Tantangan berhasil! ~w tertangkap tidak menyerukan UNI.~n', [Target]),
             format('~w mendapatkan 2 kartu penalti.~n', [Target]),
             tarik_kartu_penalti(2, Target),
-            pindahGiliran(Target)
+            
+            % Giliran PemainAktif hangus karena berhasil menangkap
+            pindahGiliran(PemainAktif)
         ;
             format('Tantangan gagal. ~w aman atau tidak melanggar aturan.~n', [Target]),
             format('~w mendapatkan 1 kartu penalti secara acak.~n', [PemainAktif]),
             tarik_kartu_penalti(1, PemainAktif)
+            % Giliran PemainAktif TIDAK hangus, ia masih bisa melanjutkan mainkanKartu
         )
     ).
 
@@ -278,6 +296,7 @@ endGame :-
     nl,
     
     kumpulkan_skor(Urutan, SkorBelumUrut),
+    % sort/2 otomatis mengurutkan Poin (elemen pertama), lalu Jumlah Kartu, lalu Index Urutan
     sort(SkorBelumUrut, SkorUrut), 
     
     write('Urutan pemenang:'), nl,

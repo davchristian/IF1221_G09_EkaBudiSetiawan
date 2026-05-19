@@ -112,7 +112,8 @@ buang_dan_update(Pemain, Nomor, KartuPilihan) :-
     playerCard(Pemain, Hand),
     deleteKartu(Nomor, Hand, NewHand),
     retract(playerCard(Pemain, _)), assertz(playerCard(Pemain, NewHand)),
-    retract(activeCard(_)), assertz(activeCard(KartuPilihan)).
+    retract(activeCard(_)), assertz(activeCard(KartuPilihan)),
+    tambahKeDiscardPile(KartuPilihan).
 
 minta_warna_baru(WarnaBaru) :-
     write('Pilih warna (merah/kuning/hijau/biru): '),
@@ -138,8 +139,23 @@ tarik_kartu_penalti(N, Pemain) :-
         write('[Sistem] Deck habis! Tidak bisa menarik kartu lagi.'), nl
     ).
 
+nextPlayer(PemainSaat, PemainBerikutnya) :-
+    daftarPemain(Daftar),
+    arahPermainan(Arah),
+    pemain_berikutnya(Daftar, PemainSaat, Arah, PemainBerikutnya).
+
+pemain_berikutnya(Daftar, Pemain, clockwise, Berikutnya) :-
+    ( append(_, [Pemain, Berikutnya | _], Daftar) -> true
+    ; Daftar = [Berikutnya | _], last(Daftar, Pemain)
+    ).
+
+pemain_berikutnya(Daftar, Pemain, counterclockwise, Berikutnya) :-
+    ( append(_, [Berikutnya, Pemain | _], Daftar) -> true
+    ; Daftar = [Pemain | _], last(Daftar, Berikutnya)
+    ).
+
 pindahGiliran(Pemain) :-
-    nextPlayer(PemainBerikutnya), 
+    nextPlayer(Pemain, PemainBerikutnya),
     retract(giliran(Pemain)),
     assertz(giliran(PemainBerikutnya)),
     format('Giliran ~w.~n', [PemainBerikutnya]).

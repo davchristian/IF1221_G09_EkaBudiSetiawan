@@ -136,26 +136,14 @@ tarik_kartu_penalti(N, Pemain) :-
         N1 is N - 1,
         tarik_kartu_penalti(N1, Pemain)
     ;
-        write('[Sistem] Deck habis! Tidak bisa menarik kartu lagi.'), nl
-    ).
-
-nextPlayer(PemainSaat, PemainBerikutnya) :-
-    daftarPemain(Daftar),
-    arahPermainan(Arah),
-    pemain_berikutnya(Daftar, PemainSaat, Arah, PemainBerikutnya).
-
-pemain_berikutnya(Daftar, Pemain, clockwise, Berikutnya) :-
-    ( append(_, [Pemain, Berikutnya | _], Daftar) -> true
-    ; Daftar = [Berikutnya | _], last(Daftar, Pemain)
-    ).
-
-pemain_berikutnya(Daftar, Pemain, counterclockwise, Berikutnya) :-
-    ( append(_, [Berikutnya, Pemain | _], Daftar) -> true
-    ; Daftar = [Pemain | _], last(Daftar, Berikutnya)
+        write('[Sistem] Deck habis! Tidak bisa menarik kartu lagi.'),
+        shuffleDiscardPileToDeck,
+        tarik_kartu_penalti(N, Pemain),
+        nl.
     ).
 
 pindahGiliran(Pemain) :-
-    nextPlayer(Pemain, PemainBerikutnya),
+    nextPlayer(PemainBerikutnya), 
     retract(giliran(Pemain)),
     assertz(giliran(PemainBerikutnya)),
     format('Giliran ~w.~n', [PemainBerikutnya]).

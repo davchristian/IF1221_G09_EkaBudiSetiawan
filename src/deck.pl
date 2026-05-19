@@ -111,6 +111,15 @@ initKartu :-
     assertz(activeCard(KartuAwal)),
     assertz(deck(SisaDeckAkhir)).
 
+get_random_card(kartu(Warna, Angka)) :-
+    findall(kartu(W, A), kartu(W, A), SemuaKartu),
+    random_member(kartu(Warna, Angka), SemuaKartu).
+
+kartuAktif :-
+    activeCard(CurCard),
+    CurCard = kartu(WarnaAktif, AngkaAktif),
+    format('Kartu aktif : ~w ~w.', [AngkaAktif, WarnaAktif]), nl.
+
 ambilNKartu(0, Deck, [], Deck).
 ambilNKartu(N, [Kartu | SisaDeck], [Kartu | SisaKartu], DeckAkhir) :-
     N > 0,
@@ -122,7 +131,8 @@ ambilKartuN(N, Daftar, Elemen) :-
     N >= 1,
     nth1(N, Daftar, Elemen).
 
-deleteKartu(N, Daftar, DaftarBaru) :-
-    integer(N),
-    N >= 1,
-    nth1(N, Daftar, _, DaftarBaru).
+deleteKartu(1, [_|T], T) :- !.
+deleteKartu(N, [H|T], [H|TBaru]) :-
+    N > 1,
+    N1 is N - 1,
+    deleteKartu(N1, T, TBaru).

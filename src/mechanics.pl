@@ -62,7 +62,15 @@ proses_kartu(Pemain, Nomor, kartu(Warna, Jenis), kartu(_, JenisTop), WarnaAktif,
     buang_dan_update(Pemain, Nomor, kartu(Warna, Jenis)),
     retractall(warna_aktif(_)), asserta(warna_aktif(Warna)),
     format('~w memainkan kartu: ~w-~w.~n', [Pemain, Warna, Jenis]),
-    pindahGiliran(Pemain). 
+    ( Jenis == skip ->
+        pindahGiliranSkip(Pemain)
+    ; Jenis == reverse ->
+        toggleArahPermainan,
+        write('Arah permainan dibalik.'), nl,
+        pindahGiliran(Pemain)
+    ;
+        pindahGiliran(Pemain)
+    ). 
 
 tantang :-
     \+ gameMulai, !, write('Game belum dimulai!'), nl.
@@ -147,6 +155,23 @@ pindahGiliran(Pemain) :-
     retract(giliran(Pemain)),
     assertz(giliran(PemainBerikutnya)),
     format('Giliran ~w.~n', [PemainBerikutnya]).
+
+toggleArahPermainan :-
+    ( arahPermainan(clockwise) ->
+        retract(arahPermainan(clockwise)),
+        assertz(arahPermainan(counterclockwise))
+    ;
+        retract(arahPermainan(counterclockwise)),
+        assertz(arahPermainan(clockwise))
+    ).
+
+pindahGiliranSkip(Pemain) :-
+    nextPlayer(Pemain, P1),
+    nextPlayer(P1, P2),
+    retract(giliran(Pemain)),
+    assertz(giliran(P2)),
+    write('Pemain berikutnya kehilangan giliran.'), nl,
+    format('Giliran ~w.~n', [P2]).
 
 uni(NomorUrut) :-
     giliran(Pemain),

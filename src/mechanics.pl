@@ -247,6 +247,7 @@ tangkap(Target) :-
         )
     ).
 
+poin_kartu(kartu(_, 0), 1) :- !.
 poin_kartu(kartu(_, J), Poin) :- integer(J), Poin = J, !.
 poin_kartu(kartu(_, skip), 10) :- !.
 poin_kartu(kartu(_, reverse), 10) :- !.

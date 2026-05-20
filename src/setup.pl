@@ -49,9 +49,8 @@ resetGame :-
     retractall(menunggu_respons_draw_two),
     retractall(menunggu_respons_draw_four(_, _)).
 
-tampilUrutan([X]) :-
-    write(X).
-
+tampilUrutan([]) :- !.
+tampilUrutan([X]) :- !, write(X).
 tampilUrutan([X | Sisa]) :-
     write(X),
     write(' - '),

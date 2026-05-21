@@ -306,3 +306,108 @@ endGame :-
     SkorUrut = [[_, _, _, PemenangUtama] | _],
     format('Selamat, ~w menjadi pemenang!~n', [PemenangUtama]),
     retractall(gameMulai).
+
+%--------------------- BONNNUUSSSSS ----------------------
+godsHand :-
+    \+ gameMulai, !,
+    write('Game belum dimulai!'), nl.
+
+godsHand :-
+    daftarPemain(Ps),
+    ( smwPemainSatuKartu(Ps) ->
+        write('God''s Hand tidak dapat dijalankan karena semua pemain hanya memiliki 1 kartu.'), nl
+    ;
+        pilihPemainAcakBerkartu(Ps, Dari),
+        pilihPemainAcakLain(Ps, Dari, Ke),
+        ambilKartuAcakDariTangan(Dari, Kartu),
+        tmbhKartuKeTangan(Ke, Kartu),
+        tampilZeus,
+        write('TUHAN TELAH BERKEHENDAK.'), nl,
+        format('Kartu ~w milik ~w berpindah ke tangan ~w!~n', [Kartu, Dari, Ke])
+    ).
+
+smwPemainSatuKartu([]).
+smwPemainSatuKartu([P|T]) :-
+    playerCard(P, Hand),
+    length(Hand, L),
+    L =:= 1,
+    smwPemainSatuKartu(T).
+
+acakIndex(N, I) :-
+    N > 0,
+    random(R),        
+    X is floor(R * N), 
+    I is X + 1.        
+
+pilihPemainAcakBerkartu(Ps, P) :-
+    length(Ps, N),
+    acakIndex(N, I),
+    nth1(I, Ps, P),
+    playerCard(P, Hand),
+    length(Hand, L),
+    L >= 2, !.
+pilihPemainAcakBerkartu(Ps, P) :-
+    pilihPemainAcakBerkartu(Ps, P).
+
+pilihPemainAcakLain(Ps, Bkn, P) :-
+    length(Ps, N),
+    acakIndex(N, I),
+    nth1(I, Ps, P),
+    P \= Bkn, !.
+pilihPemainAcakLain(Ps, Bkn, P) :-
+    pilihPemainAcakLain(Ps, Bkn, P).
+
+ambilKartuAcakDariTangan(P, Kartu) :-
+    playerCard(P, Hand),
+    length(Hand, N),
+    acakIndex(N, I),
+    nth1(I, Hand, Kartu),
+    deleteKartu(I, Hand, HandBaru),
+    retract(playerCard(P, _)),
+    assertz(playerCard(P, HandBaru)).
+
+tmbhKartuKeTangan(P, Kartu) :-
+    playerCard(P, Hand),
+    append(Hand, [Kartu], HandBaru),
+    retract(playerCard(P, _)),
+    assertz(playerCard(P, HandBaru)).
+
+tampilZeus :-
+    nl,
+    write('                                                                .:.                                 '), nl,
+    write('                                                               .-:.                                 '), nl,
+    write('                                                             .-.:..                                 '), nl,
+    write('                                            ..:=.....-:.   .:..:-=.                                 '), nl,
+    write('                                         ...:.        ..-...-=-.=..                                 '), nl,
+    write('                                     :........-..    :... ....-..                                   '), nl,
+    write('                                   .-..       .      ..       .::..                                 '), nl,
+    write('                                  .:                            .:.                                 '), nl,
+    write('                                 .:-..  .::---:::..-::---::.   .-=.                                 '), nl,
+    write('                           :.    ::   .:..                ..:.   :.                                 '), nl,
+    write('                           .:.  .:   .-.                    .:.   +.                                '), nl,
+    write('                           ....+...  :.                      ..   =.                                '), nl,
+    write('                           .:...-+.  ..                       :  .=.                                '), nl,
+    write('                           .=.:.:-.  = :::::.          .-:::: .  ..                                 '), nl,
+    write('                           .+.:..+: .-   .--.....  :...:-:....-. :-                                 '), nl,
+    write('                             .:.-.:..:.:=-=*-+:.-  :.:*=**::..-. ....                               '), nl,
+    write('                              .=:.:..:  .--==:=.-  ..-.+=+..  -. :.:.                               '), nl,
+    write('                               ::-...=   ..--...:  :. .=.... .=. .+-.                               '), nl,
+    write('                               - ....-.        =   ..        .=.   .:                               '), nl,
+    write('                               =   .==.=.     :.   ..:     .=.:=   .:                               '), nl,
+    write('                               :.  :::.     ..-..    :..... .:...  .:                               '), nl,
+    write('                               .: .=. .:.--.....:.:......::.:...:  -.  .=.                          '), nl,
+    write('                              ... :.   .-..   :-:==:::.....--.  .. :. .::                           '), nl,
+    write('                                :..    -   .-+.......:-:. ..=.   -.-.-:-                            '), nl,
+    write('                                .*:    :   =........... .   ..   :+. ..:                            '), nl,
+    write('                                 -.    -  .=..          +   .    ::.::=.                            '), nl,
+    write('                                 ..    -  ...           -.  .    :.-...                             '), nl,
+    write('                                 .:    -  ::            ..  .    :-.                                '), nl,
+    write('                                 .:   .: .-.            .-. -.  .=.                                 '), nl,
+    write('                                  .-..=.::..              ::.-..-..                                 '), nl,
+    write('                                   .-...                     ..=...                                 '), nl,
+    write('                                     .-..                   .+..                                    '), nl,
+    write('                                       .-:.               ::....                                    '), nl,
+    write('                                          ..-..      .:-...                                         '), nl,
+    write('                                              .-:. ::......                                         '), nl,
+    write('                                                .-:.                                                '), nl,
+    nl.

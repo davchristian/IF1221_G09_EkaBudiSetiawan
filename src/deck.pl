@@ -72,7 +72,7 @@ kartu(hitam, wildFour).
 :- dynamic(playerCard/2).
 :- dynamic(discardPile/1).
 :- dynamic(arahPermainan/1).
-:- dynamic(warnaAktif/1).
+:- dynamic(warna_aktif/1).
 :- use_module(library(random)).
 :- use_module(library(lists)).
 
@@ -119,7 +119,7 @@ initKartu :-
     retractall(activeCard(_)),
     retractall(giliran(_)),
     retractall(arahPermainan(_)),
-    retractall(warnaAktif(_)),
+    retractall(warna_aktif(_)),
     retractall(discardPile(_)),
     findall(kartu(Warna, Jenis), kartu(Warna, Jenis), SemuaKartu),
     acakList(SemuaKartu, DeckKocok),
@@ -143,7 +143,7 @@ get_random_card(kartu(Warna, Angka)) :-
 kartuAktif :-
     activeCard(CurCard),
     CurCard = kartu(WarnaAktif, AngkaAktif),
-    warnaAktif(WarnaAktif),
+    warna_aktif(WarnaAktif),
     format('Kartu aktif : ~w ~w.', [AngkaAktif, WarnaAktif]), nl.
 
 ambilNKartu(0, Deck, [], Deck).

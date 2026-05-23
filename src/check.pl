@@ -1,5 +1,26 @@
 /* lihatCommand */
 lihatCommand :-
+    menunggu_respons_draw_two, !,
+    write('Aksi utama yang tersedia:'), nl,
+    write('1. ambilKartu'), nl,
+    nl,
+    write('Aksi pendukung yang tersedia:'), nl,
+    write('1. lihatCommand'), nl,
+    write('2. lihatKartu'), nl,
+    write('3. cekInfo'), nl.
+
+lihatCommand :-
+    menunggu_respons_draw_four(_, _), !,
+    write('Aksi utama yang tersedia:'), nl,
+    write('1. ambilKartu'), nl,
+    write('2. tantang'), nl,
+    nl,
+    write('Aksi pendukung yang tersedia:'), nl,
+    write('1. lihatCommand'), nl,
+    write('2. lihatKartu'), nl,
+    write('3. cekInfo'), nl.
+
+lihatCommand :-
     write('Aksi utama yang tersedia:'), nl,
     write('1. ambilKartu'), nl,
     write('2. mainkanKartu(NomorUrut)'), nl,

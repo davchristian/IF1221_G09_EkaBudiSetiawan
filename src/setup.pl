@@ -48,6 +48,7 @@ resetGame :-
     retractall(warna_aktif(_)),
     retractall(menunggu_respons_draw_two),
     retractall(menunggu_respons_draw_four(_, _)).
+    retractall(kartu_tersembunyi(_, _)),
 
 tampilUrutan([]) :- !.
 tampilUrutan([X]) :- !, write(X).

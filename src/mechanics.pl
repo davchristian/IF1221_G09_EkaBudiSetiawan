@@ -1,6 +1,7 @@
 :- dynamic(status_UNI/1).
 :- dynamic(warna_aktif/1).
 :- dynamic(menunggu_respons_draw_two/0).
+:- dynamic(kartu_tersembunyi/2).
 :- dynamic(menunggu_respons_draw_four/2).
 
 mainkanKartu(_) :-
@@ -227,25 +228,26 @@ tangkap(_) :-
 tangkap(Target) :-
     giliran(PemainAktif),
     ( PemainAktif == Target -> 
-        write('Kamu tidak bisa menangkap dirimu sendiri!'), nl
-    ; 
+        write('Kamu tidak bisa menangkap dirimu sendiri!'), nl;
+    getHiddenCards(Target, HiddenTarget),
+    ( HiddenTarget \= [] ->
+        format('Terdapat kartu yang disembunyikan oleh ~w.~n', [Target]),
+        write('Perintah tangkap tidak valid.'), nl,
+        format('~w mendapatkan 1 kartu penalti secara acak.~n', [PemainAktif]),
+        tarik_kartu_penalti(1, PemainAktif),
+        pindahGiliran(PemainAktif);
         playerCard(Target, TanganTarget),
-        length(TanganTarget, L),
-        
-        ( (L =:= 1, \+ status_UNI(Target)) ->
-            format('Tantangan berhasil! ~w tertangkap tidak menyerukan UNI.~n', [Target]),
-            format('~w mendapatkan 2 kartu penalti.~n', [Target]),
-            tarik_kartu_penalti(2, Target),
-            
-            % Giliran PemainAktif hangus karena berhasil menangkap
-            pindahGiliran(PemainAktif)
-        ;
-            format('Tantangan gagal. ~w aman atau tidak melanggar aturan.~n', [Target]),
-            format('~w mendapatkan 1 kartu penalti secara acak.~n', [PemainAktif]),
-            tarik_kartu_penalti(1, PemainAktif)
-            % Giliran PemainAktif TIDAK hangus, ia masih bisa melanjutkan mainkanKartu
-        )
-    ).
+        length(TanganTarget, L), 
+    ( (L =:= 1, \+ status_UNI(Target)) ->
+        format('Tantangan berhasil! ~w tertangkap tidak menyerukan UNI.~n', [Target]),
+        format('~w mendapatkan 2 kartu penalti.~n', [Target]),
+        tarik_kartu_penalti(2, Target),
+        pindahGiliran(PemainAktif);
+        format('Tantangan gagal. ~w aman atau tidak melanggar aturan.~n', [Target]),
+        format('~w mendapatkan 1 kartu penalti secara acak.~n', [PemainAktif]),
+        tarik_kartu_penalti(1, PemainAktif)
+    )
+).
 
 poin_kartu(kartu(_, 0), 1) :- !.
 poin_kartu(kartu(_, J), Poin) :- integer(J), Poin = J, !.
@@ -411,3 +413,85 @@ tampilZeus :-
     write('                                              .-:. ::......                                         '), nl,
     write('                                                .-:.                                                '), nl,
     nl.
+
+getHiddenCards(Pemain, Hidden) :-
+    ( kartu_tersembunyi(Pemain, H) -> Hidden = H ; Hidden = [] ).
+
+setHiddenCards(Pemain, Hidden) :-
+    retractall(kartu_tersembunyi(Pemain, _)),
+    ( Hidden == [] -> true ; assertz(kartu_tersembunyi(Pemain, Hidden)) ).
+
+removeHiddenIfInList([], _, []).
+removeHiddenIfInList([H|T], Hand, R) :-
+    ( member(H, Hand) ->
+        R = [H|R1]
+    ;
+        R = R1
+    ),
+    removeHiddenIfInList(T, Hand, R1).
+
+sembunyikanKartu(_) :-
+    \+ gameMulai, !,
+    write('Game belum dimulai!'), nl.
+
+sembunyikanKartu(Nomor) :-
+    menunggu_respons_draw_four(_, _), !,
+    write('Anda hanya bisa menggunakan perintah "tantang." atau "ambilKartu."'), nl.
+
+sembunyikanKartu(_) :-
+    menunggu_respons_draw_two, !,
+    write('Anda harus menggunakan perintah "ambilKartu."'), nl.
+
+sembunyikanKartu(Nomor) :-
+    giliran(Pemain),
+    playerCard(Pemain, Hand),
+    length(Hand, L),
+    ( L =< 1 ->
+        write('Kamu tidak bisa menyembunyikan kartu jika hanya memiliki 1 kartu.'), nl
+    ; \+ integer(Nomor) ->
+        write('Nomor kartu salah.'), nl
+    ; Nomor < 1 ->
+        write('Nomor kartu salah.'), nl
+    ; \+ ambilKartuN(Nomor, Hand, Kartu) ->
+        write('Nomor kartu salah.'), nl
+    ;
+        getHiddenCards(Pemain, Hidden0),
+        ( member(Kartu, Hidden0) ->
+            write('Kartu tersebut sudah disembunyikan.'), nl
+        ;
+            append(Hidden0, [Kartu], Hidden1),
+            setHiddenCards(Pemain, Hidden1),
+            format('Kartu ~w berhasil disembunyikan.~n', [Kartu]),
+            pindahGiliran(Pemain)
+        )
+    ).
+
+tampilkanKartu :-
+    \+ gameMulai, !,
+    write('Game belum dimulai!'), nl.
+
+tampilkanKartu :-
+    menunggu_respons_draw_four(_, _), !,
+    write('Anda hanya bisa menggunakan perintah "tantang." atau "ambilKartu."'), nl.
+
+tampilkanKartu :-
+    menunggu_respons_draw_two, !,
+    write('Anda harus menggunakan perintah "ambilKartu."'), nl.
+
+tampilkanKartu :-
+    giliran(Pemain),
+    getHiddenCards(Pemain, Hidden0),
+    ( Hidden0 == [] ->
+        write('Tidak ada kartu yang sedang disembunyikan.'), nl
+    ;
+        playerCard(Pemain, Hand),
+        removeHiddenIfInList(Hidden0, Hand, HiddenValid),
+        setHiddenCards(Pemain, []),
+        write('Kartu berhasil ditampilkan kembali.'), nl,
+        ( HiddenValid == [] ->
+            true
+        ;
+            write('Kartu yang ditampilkan: '), write(HiddenValid), nl
+        ),
+        pindahGiliran(Pemain)
+    ).

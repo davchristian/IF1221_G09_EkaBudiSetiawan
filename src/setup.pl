@@ -46,6 +46,8 @@ resetGame :-
     retractall(discard_top(_)),
     retractall(status_UNI(_)),
     retractall(warna_aktif(_)),
+    retractall(discardPile(_)),
+    retractall(arahPermainan(_)),
     retractall(menunggu_respons_draw_two),
     retractall(menunggu_respons_draw_four(_, _)).
 

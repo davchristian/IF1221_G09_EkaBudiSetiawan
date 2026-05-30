@@ -1,6 +1,6 @@
 # IF1221_G09_EkaBudiSetiawan
 
- UNI 
+ UNI  
  Program ini implementasi permainan kartu 'UNO' yang dikembangkan dengan paradigma pemrograman logika dengan GNU Prolog. 
 
 ## Struktur Repository
@@ -36,8 +36,8 @@ gprolog
 ## Fitur Utama
 
 ## Anggota Kelompok
-Rivan Cahyadi (RivanCahyadi)	13525007
-David Christian (davchristian)	13525025
-Fathar Atandra Denaya (awowy)	13525067
-Mulky Siraj Firizqi (mulky4)	13525069
+Rivan Cahyadi (RivanCahyadi)	13525007  
+David Christian (davchristian)	13525025  
+Fathar Atandra Denaya (awowy)	13525067  
+Mulky Siraj Firizqi (mulky4)	13525069  
 

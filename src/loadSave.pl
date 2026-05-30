@@ -1,6 +1,0 @@
-loadGame() :-
-    
-
-
-saveGame() :-
-

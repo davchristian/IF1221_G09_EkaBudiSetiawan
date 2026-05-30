@@ -1,8 +1,7 @@
 # IF1221_G09_EkaBudiSetiawan
 
-# UNI 
-
-# Program ini implementasi permainan kartu 'UNO' yang dikembangkan dengan paradigma pemrograman logika dengan GNU Prolog. 
+ UNI 
+ Program ini implementasi permainan kartu 'UNO' yang dikembangkan dengan paradigma pemrograman logika dengan GNU Prolog. 
 
 ## Struktur Repository
 

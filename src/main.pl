@@ -4,6 +4,8 @@
 :- include('setup.pl').
 :- include('check.pl').
 :- include('mechanics.pl').
+:- include('save.pl').
+:- include('load.pl').
 
 % Pesan sambutan saat file diload
 :- initialization(tampilkan_banner).

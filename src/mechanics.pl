@@ -247,7 +247,7 @@ tangkap(Target) :-
         format('~w mendapatkan 1 kartu penalti secara acak.~n', [PemainAktif]),
         tarik_kartu_penalti(1, PemainAktif)
     )
-).
+)).
 
 poin_kartu(kartu(_, 0), 1) :- !.
 poin_kartu(kartu(_, J), Poin) :- integer(J), Poin = J, !.
@@ -414,6 +414,8 @@ tampilZeus :-
     write('                                                .-:.                                                '), nl,
     nl.
 
+:- dynamic(kartu_tersembunyi/2).
+
 getHiddenCards(Pemain, Hidden) :-
     ( kartu_tersembunyi(Pemain, H) -> Hidden = H ; Hidden = [] ).
 
@@ -421,20 +423,11 @@ setHiddenCards(Pemain, Hidden) :-
     retractall(kartu_tersembunyi(Pemain, _)),
     ( Hidden == [] -> true ; assertz(kartu_tersembunyi(Pemain, Hidden)) ).
 
-removeHiddenIfInList([], _, []).
-removeHiddenIfInList([H|T], Hand, R) :-
-    ( member(H, Hand) ->
-        R = [H|R1]
-    ;
-        R = R1
-    ),
-    removeHiddenIfInList(T, Hand, R1).
-
 sembunyikanKartu(_) :-
     \+ gameMulai, !,
     write('Game belum dimulai!'), nl.
 
-sembunyikanKartu(Nomor) :-
+sembunyikanKartu(_) :-
     menunggu_respons_draw_four(_, _), !,
     write('Anda hanya bisa menggunakan perintah "tantang." atau "ambilKartu."'), nl.
 
@@ -452,18 +445,19 @@ sembunyikanKartu(Nomor) :-
         write('Nomor kartu salah.'), nl
     ; Nomor < 1 ->
         write('Nomor kartu salah.'), nl
-    ; \+ ambilKartuN(Nomor, Hand, Kartu) ->
+    ; \+ nth1(Nomor, Hand, Kartu) ->
         write('Nomor kartu salah.'), nl
     ;
+        deleteKartu(Nomor, Hand, HandBaru),
+        retract(playerCard(Pemain, _)),
+        assertz(playerCard(Pemain, HandBaru)),
+
         getHiddenCards(Pemain, Hidden0),
-        ( member(Kartu, Hidden0) ->
-            write('Kartu tersebut sudah disembunyikan.'), nl
-        ;
-            append(Hidden0, [Kartu], Hidden1),
-            setHiddenCards(Pemain, Hidden1),
-            format('Kartu ~w berhasil disembunyikan.~n', [Kartu]),
-            pindahGiliran(Pemain)
-        )
+        append(Hidden0, [Kartu], Hidden1),
+        setHiddenCards(Pemain, Hidden1),
+
+        format('Kartu ~w berhasil disembunyikan.~n', [Kartu]),
+        pindahGiliran(Pemain)
     ).
 
 tampilkanKartu :-
@@ -484,14 +478,12 @@ tampilkanKartu :-
     ( Hidden0 == [] ->
         write('Tidak ada kartu yang sedang disembunyikan.'), nl
     ;
-        playerCard(Pemain, Hand),
-        removeHiddenIfInList(Hidden0, Hand, HiddenValid),
+        playerCard(Pemain, Hand0),
+        append(Hand0, Hidden0, Hand1),
+        retract(playerCard(Pemain, _)),
+        assertz(playerCard(Pemain, Hand1)),
         setHiddenCards(Pemain, []),
+
         write('Kartu berhasil ditampilkan kembali.'), nl,
-        ( HiddenValid == [] ->
-            true
-        ;
-            write('Kartu yang ditampilkan: '), write(HiddenValid), nl
-        ),
         pindahGiliran(Pemain)
     ).

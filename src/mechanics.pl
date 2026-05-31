@@ -310,6 +310,9 @@ endGame :-
     retractall(gameMulai).
 
 %--------------------- BONNNUUSSSSS ----------------------
+godsHandChance(0.15).
+godsHandGagal :-
+    write('womp womp'), nl.
 godsHand :-
     \+ gameMulai, !,
     write('Game belum dimulai!'), nl.
@@ -317,15 +320,23 @@ godsHand :-
 godsHand :-
     daftarPemain(Ps),
     ( smwPemainSatuKartu(Ps) ->
-        write('God''s Hand tidak dapat dijalankan karena semua pemain hanya memiliki 1 kartu.'), nl
+        write('God''s Hand tidak dapat dijalankan karena semua pemain hanya memiliki 1 kartu.'), nl,
+        giliran(P), pindahGiliran(P)
     ;
-        pilihPemainAcakBerkartu(Ps, Dari),
-        pilihPemainAcakLain(Ps, Dari, Ke),
-        ambilKartuAcakDariTangan(Dari, Kartu),
-        tmbhKartuKeTangan(Ke, Kartu),
-        tampilZeus,
-        write('TUHAN TELAH BERKEHENDAK.'), nl,
-        format('Kartu ~w milik ~w berpindah ke tangan ~w!~n', [Kartu, Dari, Ke])
+        godsHandChance(Pc),
+        random(R),
+        ( R =< Pc ->
+            pilihPemainAcakBerkartu(Ps, Dari),
+            pilihPemainAcakLain(Ps, Dari, Ke),
+            ambilKartuAcakDariTangan(Dari, Kartu),
+            tmbhKartuKeTangan(Ke, Kartu),
+            tampilZeus,
+            write('TUHAN TELAH BERKEHENDAK.'), nl,
+            format('Kartu ~w milik ~w berpindah ke tangan ~w!~n', [Kartu, Dari, Ke])
+        ;
+            godsHandGagal
+        ),
+        giliran(P), pindahGiliran(P)
     ).
 
 smwPemainSatuKartu([]).

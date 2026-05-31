@@ -121,6 +121,7 @@ buang_dan_update(Pemain, Nomor, KartuPilihan) :-
     playerCard(Pemain, Hand),
     deleteKartu(Nomor, Hand, NewHand),
     retract(playerCard(Pemain, _)), assertz(playerCard(Pemain, NewHand)),
+    onRemoveCardUpdateHidden(Pemain, Nomor),
     retract(activeCard(_)), assertz(activeCard(KartuPilihan)),
     tambahKeDiscardPile(KartuPilihan).
 
@@ -229,7 +230,7 @@ tangkap(Target) :-
     giliran(PemainAktif),
     ( PemainAktif == Target -> 
         write('Kamu tidak bisa menangkap dirimu sendiri!'), nl;
-    getHiddenCards(Target, HiddenTarget),
+    getHiddenIdx(Target, HiddenTarget),
     ( HiddenTarget \= [] ->
         format('Terdapat kartu yang disembunyikan oleh ~w.~n', [Target]),
         write('Perintah tangkap tidak valid.'), nl,
@@ -425,14 +426,28 @@ tampilZeus :-
     write('                                                .-:.                                                '), nl,
     nl.
 
-:- dynamic(kartu_tersembunyi/2).
-
-getHiddenCards(Pemain, Hidden) :-
+getHiddenIdx(Pemain, Hidden) :-
     ( kartu_tersembunyi(Pemain, H) -> Hidden = H ; Hidden = [] ).
 
-setHiddenCards(Pemain, Hidden) :-
+setHiddenIdx(Pemain, Hidden) :-
     retractall(kartu_tersembunyi(Pemain, _)),
     ( Hidden == [] -> true ; assertz(kartu_tersembunyi(Pemain, Hidden)) ).
+
+validHiddenIndex(I, HandLen) :-
+    integer(I),
+    I >= 1,
+    I =< HandLen.
+
+normalizeHiddenIdx([], _, []).
+normalizeHiddenIdx([I|T], Len, R) :-
+    ( validHiddenIndex(I, Len) -> R = [I|R1] ; R = R1 ),
+    normalizeHiddenIdx(T, Len, R1).
+
+member_int(X, [X|_]) :- !.
+member_int(X, [_|T]) :- member_int(X, T).
+
+add_hidden_idx(I, Hidden0, Hidden1) :-
+    ( member_int(I, Hidden0) -> Hidden1 = Hidden0 ; Hidden1 = [I|Hidden0] ).
 
 sembunyikanKartu(_) :-
     \+ gameMulai, !,
@@ -449,25 +464,17 @@ sembunyikanKartu(_) :-
 sembunyikanKartu(Nomor) :-
     giliran(Pemain),
     playerCard(Pemain, Hand),
-    length(Hand, L),
-    ( L =< 1 ->
+    length(Hand, Len),
+    ( Len =< 1 ->
         write('Kamu tidak bisa menyembunyikan kartu jika hanya memiliki 1 kartu.'), nl
-    ; \+ integer(Nomor) ->
-        write('Nomor kartu salah.'), nl
-    ; Nomor < 1 ->
-        write('Nomor kartu salah.'), nl
-    ; \+ nth1(Nomor, Hand, Kartu) ->
+    ; \+ validHiddenIndex(Nomor, Len) ->
         write('Nomor kartu salah.'), nl
     ;
-        deleteKartu(Nomor, Hand, HandBaru),
-        retract(playerCard(Pemain, _)),
-        assertz(playerCard(Pemain, HandBaru)),
-
-        getHiddenCards(Pemain, Hidden0),
-        append(Hidden0, [Kartu], Hidden1),
-        setHiddenCards(Pemain, Hidden1),
-
-        format('Kartu berhasil disembunyikan.~n', [Kartu]),
+        getHiddenIdx(Pemain, Hidden0),
+        normalizeHiddenIdx(Hidden0, Len, HiddenNorm),
+        add_hidden_idx(Nomor, HiddenNorm, Hidden1),
+        setHiddenIdx(Pemain, Hidden1),
+        write('Kartu berhasil disembunyikan.'), nl,
         pindahGiliran(Pemain)
     ).
 
@@ -485,16 +492,24 @@ tampilkanKartu :-
 
 tampilkanKartu :-
     giliran(Pemain),
-    getHiddenCards(Pemain, Hidden0),
-    ( Hidden0 == [] ->
-        write('Tidak ada kartu yang sedang disembunyikan.'), nl
-    ;
-        playerCard(Pemain, Hand0),
-        append(Hand0, Hidden0, Hand1),
-        retract(playerCard(Pemain, _)),
-        assertz(playerCard(Pemain, Hand1)),
-        setHiddenCards(Pemain, []),
+    setHiddenIdx(Pemain, []),
+    write('Kartu berhasil ditampilkan kembali.'), nl,
+    pindahGiliran(Pemain).
 
-        write('Kartu berhasil ditampilkan kembali.'), nl,
-        pindahGiliran(Pemain)
+updateHiddenAfterRemove(_, [], []).
+updateHiddenAfterRemove(N, [I|T], R) :-
+    ( I =:= N ->
+        updateHiddenAfterRemove(N, T, R)
+    ; I > N ->
+        I1 is I - 1,
+        R = [I1|R1],
+        updateHiddenAfterRemove(N, T, R1)
+    ;
+        R = [I|R1],
+        updateHiddenAfterRemove(N, T, R1)
     ).
+
+onRemoveCardUpdateHidden(Pemain, Nomor) :-
+    getHiddenIdx(Pemain, Hidden0),
+    updateHiddenAfterRemove(Nomor, Hidden0, Hidden1),
+    setHiddenIdx(Pemain, Hidden1).

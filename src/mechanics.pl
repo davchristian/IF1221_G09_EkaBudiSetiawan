@@ -456,7 +456,7 @@ sembunyikanKartu(Nomor) :-
         append(Hidden0, [Kartu], Hidden1),
         setHiddenCards(Pemain, Hidden1),
 
-        format('Kartu ~w berhasil disembunyikan.~n', [Kartu]),
+        format('Kartu berhasil disembunyikan.~n', [Kartu]),
         pindahGiliran(Pemain)
     ).
 

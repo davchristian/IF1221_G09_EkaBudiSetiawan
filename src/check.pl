@@ -42,20 +42,27 @@ lihatCommand :-
 
 /* lihatKartu */
 lihatKartu :-
-    \+ gameMulai, !, 
+    \+ gameMulai, !,
     write('Game belum dimulai. Gunakan "startGame" untuk memulai.'), nl.
 
 lihatKartu :-
     giliran(PemainAktif),
     playerCard(PemainAktif, ListKartu),
+    length(ListKartu, Len),
+    ( kartu_tersembunyi(PemainAktif, H0) -> true ; H0 = [] ),
+    normalizeHiddenIdx(H0, Len, Hidden),
     write('Berikut kartu yang anda miliki:'), nl,
-    tampilDaftarKartu(ListKartu, 1).
+    tampilDaftarKartuHidden(ListKartu, Hidden, 1).
 
-tampilDaftarKartu([], _).
-tampilDaftarKartu([H|T], Index) :-
-    format('~d. ~w~n', [Index, H]),
+tampilDaftarKartuHidden([], _, _).
+tampilDaftarKartuHidden([H|T], Hidden, Index) :-
+    ( member(Index, Hidden) ->
+        format('~d. ~w (disembunyikan)~n', [Index, H])
+    ;
+        format('~d. ~w~n', [Index, H])
+    ),
     NextIndex is Index + 1,
-    tampilDaftarKartu(T, NextIndex).
+    tampilDaftarKartuHidden(T, Hidden, NextIndex).
 
 /* cekInfo */
 cekInfo :-

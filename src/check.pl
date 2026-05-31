@@ -78,10 +78,6 @@ tampilDetailPemain([Pemain|T], Index) :-
     playerCard(Pemain, List),
     length(List, Jumlah),
     format('Nama pemain ~d: ~w~n', [Index, Pemain]),
-    format('Jumlah kartu : ~d~n', [Jumlah]),
-    ( kartu_tersembunyi(Pemain, Hidden), Hidden \= [] ->
-        write('Catatan: pemain ini menyembunyikan kartu.'), nl
-    ; true ),
-    nl,
+    format('Jumlah kartu : ~d~n~n', [Jumlah]),
     NextIndex is Index + 1,
     tampilDetailPemain(T, NextIndex).

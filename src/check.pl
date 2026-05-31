@@ -7,7 +7,8 @@ lihatCommand :-
     write('Aksi pendukung yang tersedia:'), nl,
     write('1. lihatCommand'), nl,
     write('2. lihatKartu'), nl,
-    write('3. cekInfo'), nl.
+    write('3. cekInfo'), nl,
+    write('4. kartuAktif'), nl.
 
 lihatCommand :-
     menunggu_respons_draw_four(_, _), !,
@@ -18,7 +19,8 @@ lihatCommand :-
     write('Aksi pendukung yang tersedia:'), nl,
     write('1. lihatCommand'), nl,
     write('2. lihatKartu'), nl,
-    write('3. cekInfo'), nl.
+    write('3. cekInfo'), nl,
+    write('4. kartuAktif'), nl.
 
 lihatCommand :-
     write('Aksi utama yang tersedia:'), nl,
@@ -27,11 +29,16 @@ lihatCommand :-
     write('3. tantang'), nl,
     write('4. uni(NomorUrut)'), nl,
     nl,
-    write('Aksi pendukung yang tersedia:'), nl,
+    write('Aksi pendukung & bonus yang tersedia:'), nl,
     write('1. lihatCommand'), nl,
     write('2. lihatKartu'), nl,
     write('3. cekInfo'), nl,
-    write('4. tangkap(NamaPemain)'), nl.
+    write('4. tangkap(NamaPemain)'), nl,
+    write('5. kartuAktif'), nl,
+    write('6. sembunyikanKartu(NomorUrut)'), nl,
+    write('7. tampilkanKartu'), nl,
+    write('8. godsHand'), nl,
+    write('9. saveGame'), nl.
 
 /* lihatKartu */
 lihatKartu :-

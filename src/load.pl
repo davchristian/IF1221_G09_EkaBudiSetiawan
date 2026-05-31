@@ -55,6 +55,14 @@ readDataLine(status_UNI:ListUNI) :-
 readDataLine(kartu(Pemain):ListStringKartu) :-
     readlistCardString(ListStringKartu, ListKartu),
     assertz(playerCard(Pemain, ListKartu)), !.
+% kartu tersembunyi
+readDataLine(kartu_tersembunyi:HiddenPairs) :-
+    assertzHiddenPairs(HiddenPairs), !.
+
+assertzHiddenPairs([]).
+assertzHiddenPairs([kartu_tersembunyi(P, H)|T]) :-
+    assertz(kartu_tersembunyi(P, H)),
+    assertzHiddenPairs(T).
 
 readCardString(Warna-JenisAtom, kartu(Warna, Jenis)) :-
     !,

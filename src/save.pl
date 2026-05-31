@@ -20,7 +20,7 @@ gameState(Data) :-
     % urutan
     daftarPemain(DaftarPemain),
     write(Data, 'urutan_pemain:'),
-    write_quoted_list(Data, DaftarPemain),
+    writeListFormat(Data, DaftarPemain),
     write(Data, '.'), nl(Data),
     % giliran
     giliran(Pemain),
@@ -42,7 +42,12 @@ gameState(Data) :-
     % uni
     findall(P, status_UNI(P), ListUNI),
     write(Data, 'status_UNI:'),
-    write_quoted_list(Data, ListUNI),
+    writeListFormat(Data, ListUNI),
+    % kartu tersembunyi
+    write(Data, '.'), nl(Data),
+    findall(kartu_tersembunyi(P, H), kartu_tersembunyi(P, H), HiddenPairs),
+    write(Data, 'kartu_tersembunyi:'),
+    writeq(Data, HiddenPairs),
     write(Data, '.'), nl(Data),
     % kartu player
     saveCard(Data, DaftarPemain).

@@ -43,6 +43,11 @@ gameState(Data) :-
     findall(P, status_UNI(P), ListUNI),
     write(Data, 'status_UNI:'),
     writeListFormat(Data, ListUNI),
+    % kartu tersembunyi
+    write(Data, '.'), nl(Data),
+    findall(kartu_tersembunyi(P, H), kartu_tersembunyi(P, H), HiddenPairs),
+    write(Data, 'kartu_tersembunyi:'),
+    writeq(Data, HiddenPairs),
     write(Data, '.'), nl(Data),
     % kartu player
     saveCard(Data, DaftarPemain).
